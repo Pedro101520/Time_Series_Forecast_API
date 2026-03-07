@@ -41,7 +41,7 @@ class tratamento_base():
             indice += 1
 
         try:
-            self.df.iloc[:,indice] = self.df.iloc[:,indice].str.replace(r'[^0-9.,]' , '', regex= True)
+            self.df.iloc[:,indice] = self.df.iloc[:,indice].str.replace(r'[^0-9.,-]' , '', regex= True)
         except:
             pass
 
@@ -124,7 +124,7 @@ class tratamento_base():
         self.df["Valor_sem_outliers"] = new_df["Valor"]
     
     def treino_teste(self):
-        df_avaliar = self.df[["Data", "Valor"]]
+        df_avaliar = self.df[["Data", "Valor_sem_outliers"]]
         treino, teste = train_test_split(df_avaliar, test_size=0.2, shuffle=False, random_state=42)
 
         return treino, teste

@@ -2,17 +2,35 @@ from flask import Flask, make_response, jsonify, request
 import pandas as pd
 from models.pre_processing import tratamento_base
 from models.prophet import ProphetModel
-from models.sarima import ArimaModel
+from models.sarima import SarimaModel
 from models.holt_winters import Holt_Winters_Model
 
 app = Flask(__name__) 
 
-# Ajustar para receber o nome das colunas que serão utiizadas
+def ler_arquivo(arquivo):
+    configs = [
+        {"sep": ",", "on_bad_lines": "skip"},
+        {"sep": ";", "on_bad_lines": "skip"},
+        {"sep": ";", "decimal": ",", "on_bad_lines": "skip"},
+        {"sep": ",", "encoding": "latin1", "on_bad_lines": "skip"},
+        {"sep": ";", "encoding": "latin1", "on_bad_lines": "skip"},
+        {"sep": ";", "decimal": ",", "encoding": "latin1", "on_bad_lines": "skip"},
+        {"sep": None, "engine": "python", "on_bad_lines": "skip"},
+    ]
+
+    for config in configs:
+        try:
+            return pd.read_csv(arquivo, **config)
+        except Exception:
+            continue
+
+    raise ValueError("Não foi possível ler o CSV com os formatos suportados")
+
 @app.route("/pipeline/predicao", methods=["POST"])
 def upload_csv():
     pipeline = tratamento_base()
     prophet = ProphetModel()
-    arima = ArimaModel()
+    sarima = SarimaModel()
     holt_winters = Holt_Winters_Model()
 
 
@@ -25,7 +43,8 @@ def upload_csv():
         return jsonify({"error": "Arquivo não é CSV"}), 400
     
 
-    df = pd.read_csv(file)
+    df = ler_arquivo(file)
+    
     try:
         pipeline.carregar_base(df)
         pipeline.validar_serie()
@@ -35,23 +54,55 @@ def upload_csv():
         treino, teste = pipeline.treino_teste()
         df_tratado = pipeline.retorna()
 
-        # prophet.padroniza_nome(treino, teste)
-        # prophet.avaliar(df_tratado[["Data", "Valor"]])
-        # prophet.prever_futuro()
-        # df_pred_prophet = prophet.retorna()
+        prophet.padroniza_nome(treino, teste)
+        prophet.avaliar(df_tratado[["Data", "Valor_sem_outliers"]])
 
-        # arima.avaliar(df_tratado[["Data", "Valor"]], treino, teste)
-        # arima.prever_futuro()
+        sarima.avaliar(df_tratado[["Data", "Valor_sem_outliers"]], treino, teste)
 
-        holt_winters.avaliar(df_tratado[["Data", "Valor"]])
-        holt_winters.prever_futuro()
+        holt_winters.avaliar(df_tratado[["Data", "Valor_sem_outliers"]])
+
+        rmse_compara = []
+        rmse_compara.append(prophet.retorna_comparacao())
+        rmse_compara.append(sarima.retorna_comparacao())
+        rmse_compara.append(holt_winters.retorna_comparacao())
+
+        melhor_rmse = prophet.retorna_comparacao()
+        count = 0
+        for i in rmse_compara:
+            if i < melhor_rmse:
+                melhor_rmse = i
+                count += 1
+
+        modelo = ""
+        metricas = None
+        forecast = None
+        match count:
+            case 0:
+                prophet.prever_futuro()
+                metricas = prophet.retorna_metricas()
+                modelo = "Prophet"
+                forecast = prophet.prever_futuro()
+            case 1:
+                sarima.prever_futuro()
+                metricas = sarima.retorna_metricas()
+                modelo = "SARIMA"
+                forecast = sarima.prever_futuro()
+            case 2:
+                holt_winters.prever_futuro()
+                metricas = holt_winters.retorna_metricas()
+                modelo = "Holt-Winters"
+                forecast = holt_winters.prever_futuro()
+
     except ValueError as e:
         return jsonify({"erro": str(e)}), 400
 
 
     return jsonify({
         "message": "CSV tratado com sucesso",
-        # "data": serie_tratada.to_dict(orient="records")
+        "Melhor Modelo": f"{modelo}",
+        "Metricas": f"{metricas}",
+        "Serie_Temporal_Tratada": df_tratado.to_dict(orient="records"),
+        "Forecast": forecast.to_dict(orient="records")
     }), 200
 
 
