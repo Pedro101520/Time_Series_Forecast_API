@@ -54,6 +54,8 @@ def upload_csv():
         treino, teste = pipeline.treino_teste()
         df_tratado = pipeline.retorna()
 
+        print(df_tratado)
+
         prophet.padroniza_nome(treino, teste)
         prophet.avaliar(df_tratado[["Data", "Valor_sem_outliers"]])
 
@@ -67,16 +69,16 @@ def upload_csv():
         rmse_compara.append(holt_winters.retorna_comparacao())
 
         melhor_rmse = prophet.retorna_comparacao()
-        count = 0
         for i in rmse_compara:
             if i < melhor_rmse:
                 melhor_rmse = i
-                count += 1
+        
+        melhor_modelo = rmse_compara.index(min(rmse_compara))
 
         modelo = ""
         metricas = None
         forecast = None
-        match count:
+        match melhor_modelo:
             case 0:
                 prophet.prever_futuro()
                 metricas = prophet.retorna_metricas()

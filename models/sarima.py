@@ -54,8 +54,6 @@ class SarimaModel(tratamento_base):
         self.mape = mean_absolute_percentage_error(self.teste, forecast_test)
         self.rmse = np.sqrt(mean_squared_error(self.teste, forecast_test))
 
-        print("RMSE SARIMA: ", self.rmse)
-
     
     def retorna_comparacao(self):
         return self.rmse

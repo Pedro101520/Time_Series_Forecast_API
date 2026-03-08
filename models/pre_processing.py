@@ -66,6 +66,11 @@ class tratamento_base():
             self.df.set_index('Data', inplace=True)
 
             freq = pd.infer_freq(self.df.index)
+            print(freq)
+
+            if freq in ["h","t","s","l","u","n"]:
+                self.df = self.df.resample("D").mean()
+                freq = "D"
 
             if freq is None:
                 diffs = self.df.index.to_series().diff().median()
@@ -83,9 +88,12 @@ class tratamento_base():
                     freq = 'W'
                 elif pd.Timedelta(days=360) <= diffs <= pd.Timedelta(days=366):
                     freq = 'YS'
+                elif diffs < pd.Timedelta(days=1):
+                    freq = 'D'
+                    self.df = self.df.resample('D').mean()
                 else:
                     freq = 'D'
-                    self.df = self.df.resample('D', on='Data').mean()
+                    self.df = self.df.resample('D').mean()
 
             self.df = self.df.asfreq(freq)
             self.df = self.df.reset_index()

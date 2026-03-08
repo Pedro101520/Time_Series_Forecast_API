@@ -38,9 +38,6 @@ class Holt_Winters_Model(tratamento_base):
         freq = pd.infer_freq(self.df.index)
         self.treino = self.treino.asfreq(freq)
 
-        print(self.treino)
-
-        print(self.treino)
 
         if not(df["Valor_sem_outliers"] < 0).any():
             configs = [
@@ -81,7 +78,7 @@ class Holt_Winters_Model(tratamento_base):
             })
 
             except Exception as e:
-                print("Erro:", cfg, e)
+                raise("Erro:", cfg, e)
 
         y_true = self.teste['Valor_sem_outliers'].values
         y_pred = forecast.values
@@ -108,7 +105,6 @@ class Holt_Winters_Model(tratamento_base):
         self.df = self.df.sort_index()
 
         freq = pd.infer_freq(self.df.index)
-        print(freq)
 
         self.df = self.df.asfreq(freq)
 

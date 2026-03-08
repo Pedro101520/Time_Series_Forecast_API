@@ -51,8 +51,6 @@ class ProphetModel(tratamento_base):
                 self.rmse = np.sqrt(mean_squared_error(self.teste["y"], y_pred))
                 self.mape = np.mean(np.abs((self.teste["y"] - y_pred) / self.teste["y"])) * 100
 
-                print("RMSE Prophet: ", self.rmse)
-
                 if self.rmse < melhor_rmse:
                     melhor_rmse = self.rmse
                     self.parametros = (cps, sps)
