@@ -29,14 +29,16 @@ class Holt_Winters_Model(tratamento_base):
         
 
     def avaliar(self, df):
-        df = df
         self.df = df
-        self.treino, self.teste = self.treino_teste(df)
 
         self.df["Data"] = pd.to_datetime(self.df["Data"])
         self.df = self.df.set_index("Data")
+
         freq = pd.infer_freq(self.df.index)
-        self.treino = self.treino.asfreq(freq)
+        self.freq = freq.split('-')[0]
+        self.df = self.df.asfreq(freq)
+
+        self.treino, self.teste = self.treino_teste(self.df)
 
 
         if not(df["Valor_sem_outliers"] < 0).any():
@@ -68,26 +70,26 @@ class Holt_Winters_Model(tratamento_base):
 
                 forecast = model.forecast(len(self.teste))
                 rmse = np.sqrt(mean_squared_error(self.teste['Valor_sem_outliers'], forecast))
+                mae = mean_absolute_error(self.teste['Valor_sem_outliers'], forecast)
+                mape = np.mean(np.abs((self.teste['Valor_sem_outliers'] - forecast) / self.teste['Valor_sem_outliers'])) * 100
 
                 self.results.append({
                 'trend': cfg['trend'],
                 'seasonal': cfg['seasonal'],
                 'damped': cfg['damped'],
                 'rmse': rmse,
+                'mae': mae,
+                'mape': mape,
                 'model': model
             })
 
             except Exception as e:
                 raise("Erro:", cfg, e)
-
-        y_true = self.teste['Valor_sem_outliers'].values
-        y_pred = forecast.values
-
-        self.mae = mean_absolute_error(y_true, y_pred)
-        self.rmse = np.sqrt(mean_squared_error(y_true, y_pred))
-        self.mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
-
+        
         self.melhor_modelo = min(self.results, key=lambda x: x['rmse'])
+        self.rmse = self.melhor_modelo["rmse"]
+        self.mae = self.melhor_modelo["mae"]
+        self.mape = self.melhor_modelo["mape"]
     
     def retorna_comparacao(self):
         return self.rmse
@@ -100,6 +102,7 @@ class Holt_Winters_Model(tratamento_base):
         }
 
     def prever_futuro(self):
+        print(self.freq, "oiusdgfioujçlkçlk")
         self.df["Data"] = pd.to_datetime(self.df["Data"])
         self.df = self.df.set_index("Data")
         self.df = self.df.sort_index()
@@ -109,7 +112,7 @@ class Holt_Winters_Model(tratamento_base):
         self.df = self.df.asfreq(freq)
 
         qtde_pred = 0
-        seasonal = 0
+        seasonal = None
         match self.freq:
             case 'D':
                 qtde_pred = 90
@@ -117,24 +120,38 @@ class Holt_Winters_Model(tratamento_base):
             case 'B':
                 qtde_pred = 60
                 seasonal = 5
-            case 'MS':
+            case 'MS' | 'M' | 'ME':
                 qtde_pred = 24
                 seasonal = 12
             case 'W':
                 qtde_pred = 52
                 seasonal = 4
-            case _:
-                qtde_pred = 30
-                seasonal = 1
+            case 'YS' | 'YE' | 'Y' | 'A':
+                qtde_pred = 10
+                seasonal = None
+                print("osdujfsdljkdfkhj")
+            # case _:
+            #     qtde_pred = 30
+            #     seasonal = 1
 
-        model = ExponentialSmoothing(
-            self.df['Valor_sem_outliers'],
-            trend=self.melhor_modelo['trend'],
-            seasonal=self.melhor_modelo['seasonal'],
-            damped_trend=self.melhor_modelo['damped'],
-            seasonal_periods=seasonal
-        ).fit(optimized=True)
+        if not(seasonal == None):
+            model = ExponentialSmoothing(
+                self.df['Valor_sem_outliers'],
+                trend=self.melhor_modelo['trend'],
+                seasonal=self.melhor_modelo['seasonal'],
+                damped_trend=self.melhor_modelo['damped'],
+                seasonal_periods=seasonal
+            ).fit(optimized=True)
+            print("Seazonal")
+        else: 
+            model = ExponentialSmoothing(
+                self.df['Valor_sem_outliers'],
+                trend=self.melhor_modelo['trend'],
+                damped_trend=self.melhor_modelo['damped'],
+            ).fit(optimized=True)
+            print("Não seazonal")
 
         forecast = model.forecast(qtde_pred)
-
-        return forecast
+        forecast_df = forecast.reset_index()
+        forecast_df.columns = ["Data", "Valor"]
+        return forecast_df

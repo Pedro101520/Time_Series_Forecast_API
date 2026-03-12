@@ -76,10 +76,12 @@ class SarimaModel(tratamento_base):
                 qtde_pred = 90
             case 'B':
                 qtde_pred = 60
-            case 'MS':
+            case 'MS' | 'M' | 'ME':
                 qtde_pred = 24
             case 'W':
                 qtde_pred = 52
+            case 'YS' | 'YE' | 'Y' | 'A':
+                qtde_pred = 10
             case _:
                 qtde_pred = 30
 
@@ -88,10 +90,10 @@ class SarimaModel(tratamento_base):
         conf_int = forecast_result.conf_int(alpha=0.05) 
         
         df_forecast = pd.DataFrame({
+            'Data': forecast_mean.index,
             'forecast':         forecast_mean,
             'limite_inferior':  conf_int.iloc[:, 0].round(2),
             'limite_superior':  conf_int.iloc[:, 1].round(2),
-
         })
         
         return df_forecast

@@ -80,17 +80,14 @@ def upload_csv():
         forecast = None
         match melhor_modelo:
             case 0:
-                prophet.prever_futuro()
                 metricas = prophet.retorna_metricas()
                 modelo = "Prophet"
                 forecast = prophet.prever_futuro()
             case 1:
-                sarima.prever_futuro()
                 metricas = sarima.retorna_metricas()
                 modelo = "SARIMA"
                 forecast = sarima.prever_futuro()
             case 2:
-                holt_winters.prever_futuro()
                 metricas = holt_winters.retorna_metricas()
                 modelo = "Holt-Winters"
                 forecast = holt_winters.prever_futuro()

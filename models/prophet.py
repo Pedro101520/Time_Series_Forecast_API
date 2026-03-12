@@ -81,10 +81,12 @@ class ProphetModel(tratamento_base):
                 qtde_pred = 90
             case 'B':
                 qtde_pred = 60
-            case 'MS':
+            case 'MS' | 'M' | 'ME':
                 qtde_pred = 24
             case 'W':
                 qtde_pred = 52
+            case 'YS' | 'YE' | 'Y' | 'A':
+                qtde_pred = 10
             case _:
                 qtde_pred = 30
 

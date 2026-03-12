@@ -68,6 +68,7 @@ class tratamento_base():
             freq = pd.infer_freq(self.df.index)
             print(freq)
 
+            freq = freq.split('-')[0]
             if freq in ["h","t","s","l","u","n"]:
                 self.df = self.df.resample("D").mean()
                 freq = "D"
@@ -94,7 +95,6 @@ class tratamento_base():
                 else:
                     freq = 'D'
                     self.df = self.df.resample('D').mean()
-
             self.df = self.df.asfreq(freq)
             self.df = self.df.reset_index()
 
