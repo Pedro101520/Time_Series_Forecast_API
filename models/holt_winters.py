@@ -102,7 +102,6 @@ class Holt_Winters_Model(tratamento_base):
         }
 
     def prever_futuro(self):
-        print(self.freq, "oiusdgfioujçlkçlk")
         self.df["Data"] = pd.to_datetime(self.df["Data"])
         self.df = self.df.set_index("Data")
         self.df = self.df.sort_index()
@@ -129,10 +128,8 @@ class Holt_Winters_Model(tratamento_base):
             case 'YS' | 'YE' | 'Y' | 'A':
                 qtde_pred = 10
                 seasonal = None
-                print("osdujfsdljkdfkhj")
-            # case _:
-            #     qtde_pred = 30
-            #     seasonal = 1
+            case _:
+                qtde_pred = 30
 
         if not(seasonal == None):
             model = ExponentialSmoothing(
@@ -142,14 +139,12 @@ class Holt_Winters_Model(tratamento_base):
                 damped_trend=self.melhor_modelo['damped'],
                 seasonal_periods=seasonal
             ).fit(optimized=True)
-            print("Seazonal")
         else: 
             model = ExponentialSmoothing(
                 self.df['Valor_sem_outliers'],
                 trend=self.melhor_modelo['trend'],
                 damped_trend=self.melhor_modelo['damped'],
             ).fit(optimized=True)
-            print("Não seazonal")
 
         forecast = model.forecast(qtde_pred)
         forecast_df = forecast.reset_index()
