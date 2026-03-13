@@ -14,6 +14,6 @@ app.register_blueprint(holt_winters_bp)
 app.register_blueprint(tratamento_bp)
 
 
-# if __name__ == "__main__":
-#     app.run()
-app.run()
+if __name__ == "__main__":
+    app.run()
+# app.run()
