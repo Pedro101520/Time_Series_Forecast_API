@@ -44,12 +44,44 @@ Responsável por:
 - Selecionar automaticamente o melhor modelo
 - Retornar a previsão
 
+Exemplo de saída:
+
+```json
+{
+  "message": "Modelo treinado com sucesso",
+  "Melhor Modelo": "Prophet",
+  "Metricas": {
+    "RMSE": 123.45,
+    "MAE": 67.89,
+    "MAPE": 4.56
+  },
+  "Forecast": [
+    {"Data": "2026-03-14", "Valor": 150.32},
+    {"Data": "2026-03-15", "Valor": 152.10},
+    {"Data": "2026-03-16", "Valor": 148.75}
+  ]
+}
+```
+
 ---
 
 ### 2️⃣ `/tratamento`
 
 Realiza apenas o tratamento da série temporal, sem aplicar modelos de previsão.
 
+Exemplo de saída:
+
+```json
+{
+  "message": "CSV tratado com sucesso",
+  "Serie_Temporal_Tratada": [
+    {"Data": "2026-01-01", "Valor": 120.5},
+    {"Data": "2026-01-02", "Valor": 123.0},
+    {"Data": "2026-01-03", "Valor": 119.7},
+    {"Data": "2026-01-04", "Valor": 121.2}
+  ]
+}
+```
 ---
 
 ### 3️⃣ `/sarima`
@@ -68,6 +100,25 @@ Realiza o forecast utilizando apenas o modelo Prophet.
 
 Realiza o forecast utilizando apenas o modelo Holt-Winters.
 
+---
+
+# O exemplo de saída abaixo serve para os endpoints individuais (SARIMA, Prophet e Holt-Winters)
+```json
+{
+  "message": "Modelo treinado com sucesso",
+  "Modelo": "Prophet",
+  "Metricas": {
+    "RMSE": 123.45,
+    "MAE": 67.89,
+    "MAPE": 4.56
+  },
+  "Forecast": [
+    {"Data": "2026-03-14", "Valor": 150.32},
+    {"Data": "2026-03-15", "Valor": 152.10},
+    {"Data": "2026-03-16", "Valor": 148.75}
+  ]
+}
+```
 ---
 
 # ⚙️ Limitações da API
