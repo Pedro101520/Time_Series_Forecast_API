@@ -142,9 +142,14 @@ import requests
 
 files = {"file": open("serie_temporal.csv", "rb")}
 
+headers = {
+    "x-api-key": "API_KEY"
+}
+
 response = requests.post(
     "http://localhost:5000/pipeline/predicao",
-    files=files
+    files=files,
+    headers=headers
 )
 
 print(response.json())
