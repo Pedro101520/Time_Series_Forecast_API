@@ -18,6 +18,17 @@ A métrica com maior peso na seleção do modelo é o RMSE (Root Mean Squared Er
 
 ---
 
+🌐 Disponibilidade da API
+
+A API está hospedada no Google Cloud Platform (GCP), utilizando o serviço Cloud Run para execução e escalabilidade.
+
+Atualmente, o acesso público à API está desativado por decisão de projeto, com o objetivo de controle de uso e recursos.
+
+No entanto, caso haja interesse em utilizar a API, é possível solicitar acesso entrando em contato comigo.
+As informações de contato estão disponíveis no meu perfil do GitHub.
+
+---
+
 # 🛠️ Tecnologias utilizadas
 
 - Python
@@ -27,6 +38,7 @@ A métrica com maior peso na seleção do modelo é o RMSE (Root Mean Squared Er
 - SARIMA (statsmodels)
 - Holt-Winters
 - Prophet
+- Google Cloud
 
 ---
 
