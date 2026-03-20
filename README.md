@@ -39,6 +39,7 @@ As informações de contato estão disponíveis no meu perfil do GitHub.
 - Holt-Winters
 - Prophet
 - Google Cloud
+- Docker
 
 ---
 
