@@ -95,8 +95,9 @@ Exemplo de saída:
   ]
 }
 ```
+---
 
-A rota /analitico extende da rota acima, com a diferença que retorna o histórico da série temporal sem o tratamento dos outliers incluso.
+A rota `/analitico` extende da rota acima, com a diferença que retorna o histórico da série temporal sem o tratamento dos outliers incluso.
 
 Exemplo de saída:
 ```json
