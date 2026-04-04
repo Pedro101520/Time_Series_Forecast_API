@@ -95,6 +95,22 @@ Exemplo de saída:
   ]
 }
 ```
+
+A rota /analitico extende da rota acima, com a diferença que retorna o histórico da série temporal sem o tratamento dos outliers incluso.
+
+Exemplo de saída:
+```json
+{
+  "message": "CSV tratado com sucesso",
+  "Serie_Temporal_Tratada_Analitico": [
+    {"Data": "2026-01-01", "Valor": 120.5},
+    {"Data": "2026-01-02", "Valor": 123.0},
+    {"Data": "2026-01-03", "Valor": 119.7},
+    {"Data": "2026-01-04", "Valor": 121.2}
+  ]
+}
+```
+
 ---
 
 ### 3️⃣ `/sarima`
