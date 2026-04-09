@@ -72,11 +72,9 @@ class tratamento_base():
             if not(freq == None):
                 freq = freq.split('-')[0]
 
-            print(freq)
             if freq in ["h","t","s","l","u","n"]:
                 self.df = self.df.resample("D").mean()
                 freq = "D"
-                print(freq, "Depois do if")
 
             if freq is None:
                 diffs = self.df.index.to_series().diff().median()
