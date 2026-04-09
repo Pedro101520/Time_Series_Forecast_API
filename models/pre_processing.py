@@ -16,6 +16,8 @@ class tratamento_base():
             raise ValueError("Arquivo vazio")
         if self.df.shape[0] > 200000:
             raise ValueError("Não é aceito séries temporais com mais de 200000 ocorrências")
+        if self.df.shape[0] < 30:
+            raise ValueError("Não é aceito séries temporais com menos de 50 ocorrências")
 
     def padroniza_nome(self):
         colunas = self.df.columns
@@ -62,6 +64,7 @@ class tratamento_base():
         porcentagem_nulo_data = ((self.df["Data"].isna().sum())/self.df.shape[0]) * 100
 
         if porcentagem_nulo_data <= 20:
+            self.df["Data"] = self.df["Data"].drop_duplicates()
             self.df = self.df.dropna(subset=["Data"])
             self.df.set_index('Data', inplace=True)
 
@@ -69,9 +72,11 @@ class tratamento_base():
             if not(freq == None):
                 freq = freq.split('-')[0]
 
+            print(freq)
             if freq in ["h","t","s","l","u","n"]:
                 self.df = self.df.resample("D").mean()
                 freq = "D"
+                print(freq, "Depois do if")
 
             if freq is None:
                 diffs = self.df.index.to_series().diff().median()
