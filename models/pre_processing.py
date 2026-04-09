@@ -145,6 +145,10 @@ class tratamento_base():
         df.set_index('Data', inplace=True)
         freq = pd.infer_freq(df.index)
 
+        if freq in ["h","t","s","l","u","n"]:
+            self.df = self.df.resample("D").mean()
+            freq = "D"
+
         if freq is None:
             diffs = df.index.to_series().diff().median()
             if diffs == pd.Timedelta(days=1):
