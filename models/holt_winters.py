@@ -41,7 +41,12 @@ class Holt_Winters_Model(tratamento_base):
         self.treino, self.teste = self.treino_teste(self.df)
 
 
-        if not(df["Valor_sem_outliers"] < 0).any():
+        if (df["Valor_sem_outliers"] <= 0).any():
+            configs = [
+                {'trend': 'add', 'seasonal': 'add', 'damped': False},
+                {'trend': 'add', 'seasonal': 'add', 'damped': True},
+            ]
+        else:
             configs = [
                 {'trend': 'add', 'seasonal': 'add', 'damped': False},
                 {'trend': 'add', 'seasonal': 'mul', 'damped': False},
@@ -50,13 +55,29 @@ class Holt_Winters_Model(tratamento_base):
                 {'trend': 'add', 'seasonal': 'add', 'damped': True},
                 {'trend': 'add', 'seasonal': 'mul', 'damped': True},
             ]
-        else:
-            configs = [
-                {'trend': 'add', 'seasonal': 'add', 'damped': False},
-                {'trend': 'add', 'seasonal': 'add', 'damped': True},
-            ]
 
         self.results = []
+
+        seasonal = None
+        match self.freq:
+            case 'D':
+                seasonal = 7
+            case 'B':
+                seasonal = 5
+            case 'MS' | 'M' | 'ME':
+                seasonal = 12
+            case 'W':
+                seasonal = 4
+            case 'YS' | 'YE' | 'Y' | 'A':
+                seasonal = None
+            case _:
+                seasonal = None
+
+        if seasonal is None:
+            configs = [
+                {'trend': 'add', 'seasonal': None, 'damped': False},
+                {'trend': 'add', 'seasonal': None, 'damped': True},
+            ]
 
         for cfg in configs:
             try:
@@ -65,7 +86,7 @@ class Holt_Winters_Model(tratamento_base):
                 trend=cfg['trend'],
                 seasonal=cfg['seasonal'],
                 damped_trend=cfg['damped'],
-                seasonal_periods=7
+                seasonal_periods=seasonal
                 ).fit(optimized=True)
 
                 forecast = model.forecast(len(self.teste))
@@ -84,7 +105,7 @@ class Holt_Winters_Model(tratamento_base):
             })
 
             except Exception as e:
-                raise("Erro:", cfg, e)
+                continue
         
         self.melhor_modelo = min(self.results, key=lambda x: x['rmse'])
         self.rmse = self.melhor_modelo["rmse"]
@@ -92,7 +113,7 @@ class Holt_Winters_Model(tratamento_base):
         self.mape = self.melhor_modelo["mape"]
     
     def retorna_comparacao(self):
-        return self.rmse
+        return self.rmse, self.mape
     
     def retorna_metricas(self):
         return {
@@ -114,22 +135,23 @@ class Holt_Winters_Model(tratamento_base):
         seasonal = None
         match self.freq:
             case 'D':
-                qtde_pred = 90
+                qtde_pred = 30
                 seasonal = 7
             case 'B':
-                qtde_pred = 60
+                qtde_pred = 30
                 seasonal = 5
             case 'MS' | 'M' | 'ME':
                 qtde_pred = 24
                 seasonal = 12
             case 'W':
-                qtde_pred = 52
+                qtde_pred = 40
                 seasonal = 4
             case 'YS' | 'YE' | 'Y' | 'A':
                 qtde_pred = 10
                 seasonal = None
             case _:
                 qtde_pred = 30
+                seasonal = None
 
         if not(seasonal == None):
             model = ExponentialSmoothing(

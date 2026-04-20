@@ -15,7 +15,7 @@ class SarimaModel(tratamento_base):
          self.mae = None
          self.rmse = None
          self.mape = None
-    
+
     def avaliar(self, df, treino, teste):
         self.df = df
         self.freq = self.frequencia(df)
@@ -26,27 +26,57 @@ class SarimaModel(tratamento_base):
         self.treino.set_index('Data', inplace=True)
         self.teste.set_index('Data', inplace=True)
 
-        auto_model = auto_arima(
-            df,
+        m = None
+        match self.freq:
+            case 'D':
+                m = 7
+            case 'B':
+                m = 5
+            case 'MS' | 'M' | 'ME':
+                m = 12
+            case 'W':
+                m = 52
+            case 'YS' | 'YE' | 'Y' | 'A':
+                m = 1
+            case _:
+                m = 1
+                
+        auto_model = None
+        if m != 1:
+            auto_model = auto_arima(
+                self.treino,
+                start_p=1, start_q=1,
+                max_p=5, max_q=5,
+                m=m,                  
+                seasonal=True,
+                d=None,                   
+                D=None,                  
+                max_P=1, max_Q=1,
+                test='adf',             
+                stepwise=False,
+                trace=True,
+                n_fits=30,              
+                error_action='ignore',
+                suppress_warnings=True
+            )
+        else:
+            auto_model = auto_arima(
+            self.treino,
             start_p=1, start_q=1,
             max_p=3, max_q=3,
-            m=7,                  
-            seasonal=True,
-            d=1,                   
-            D=1,                  
-            max_P=1, max_Q=1,
-            test='adf',             
-            stepwise=True,
+            d=None,
+            test='adf',
+            seasonal=False,
+            stepwise=False,
             trace=True,
-            n_fits=20,              
             error_action='ignore',
             suppress_warnings=True
-        )
+        ) 
                 
         self.auto_model = auto_model
 
         model = SARIMAX(self.treino, order=self.auto_model.order, seasonal_order=self.auto_model.seasonal_order)
-        model_fit = model.fit()
+        model_fit = model.fit(disp=False)
 
         forecast_test = model_fit.forecast(len(self.teste))
 
@@ -56,7 +86,7 @@ class SarimaModel(tratamento_base):
 
     
     def retorna_comparacao(self):
-        return self.rmse
+        return self.rmse, self.mape
     
     def retorna_metricas(self):
         return {
@@ -69,17 +99,17 @@ class SarimaModel(tratamento_base):
     def prever_futuro(self):
         self.df.index.freq = self.freq
         model = SARIMAX(self.df, order=self.auto_model.order, seasonal_order=self.auto_model.seasonal_order)
-        model_fit = model.fit() 
+        model_fit = model.fit(disp=False) 
 
         match self.freq:
             case 'D':
-                qtde_pred = 90
+                qtde_pred = 30
             case 'B':
-                qtde_pred = 60
+                qtde_pred = 30
             case 'MS' | 'M' | 'ME':
                 qtde_pred = 24
             case 'W':
-                qtde_pred = 52
+                qtde_pred = 40
             case 'YS' | 'YE' | 'Y' | 'A':
                 qtde_pred = 10
             case _:

@@ -26,19 +26,25 @@ class ProphetModel(tratamento_base):
 
         n_test = len(self.teste)
 
-        cps_values = [0.01, 0.05, 0.1, 0.5, 1]
-        sps_values = [1, 5, 10, 20]
+        cps_values = [0.001, 0.01, 0.05, 0.1, 0.3, 0.5, 1.0]
+        sps_values = [0.1, 0.5, 1, 5, 10, 20, 40]
 
         melhor_rmse = float('inf')
 
         self.freq = self.frequencia(df)
+
+        if (self.treino["y"].std() / self.treino["y"].mean()) > 0.15:
+            sm = "multiplicative"
+        else:
+            sm = "additive"
 
         for cps in cps_values:
             for sps in sps_values:
                 modelo = Prophet(
                     changepoint_prior_scale=cps,
                     seasonality_prior_scale=sps,
-                    seasonality_mode='multiplicative'
+                    seasonality_mode=sm,
+                    interval_width=0.70
                 )
 
                 modelo.fit(self.treino)
@@ -47,16 +53,20 @@ class ProphetModel(tratamento_base):
                 forecast = modelo.predict(future)
 
                 y_pred = forecast.tail(n_test)["yhat"]
-                self.mae = mean_absolute_error(self.teste["y"], y_pred)
-                self.rmse = np.sqrt(mean_squared_error(self.teste["y"], y_pred))
-                self.mape = np.mean(np.abs((self.teste["y"] - y_pred) / self.teste["y"])) * 100
+                mae = mean_absolute_error(self.teste["y"], y_pred)
+                rmse = np.sqrt(mean_squared_error(self.teste["y"], y_pred))
+                mape = np.mean(np.abs((self.teste["y"] - y_pred) / self.teste["y"])) * 100
 
-                if self.rmse < melhor_rmse:
-                    melhor_rmse = self.rmse
+                if rmse < melhor_rmse:
+                    melhor_rmse = rmse
                     self.parametros = (cps, sps)
 
+                    self.mae = mae
+                    self.rmse = rmse
+                    self.mape = mape
+
     def retorna_comparacao(self):
-        return self.rmse
+        return self.rmse, self.mape
     
     def retorna_metricas(self):
         return {
@@ -67,10 +77,16 @@ class ProphetModel(tratamento_base):
     
     def prever_futuro(self):
 
+        if (self.treino["y"].std() / self.treino["y"].mean()) > 0.15:
+            sm = "multiplicative"
+        else:
+            sm = "additive"
+
         modelo = Prophet(
             changepoint_prior_scale=self.parametros[0],
             seasonality_prior_scale=self.parametros[1],
-            seasonality_mode='multiplicative'
+            seasonality_mode=sm,
+            interval_width=0.70
         )
         
         modelo.fit(self.df)
@@ -78,13 +94,13 @@ class ProphetModel(tratamento_base):
         qtde_pred = 0
         match self.freq:
             case 'D':
-                qtde_pred = 90
+                qtde_pred = 30
             case 'B':
-                qtde_pred = 60
+                qtde_pred = 30
             case 'MS' | 'M' | 'ME':
                 qtde_pred = 24
             case 'W':
-                qtde_pred = 52
+                qtde_pred = 40
             case 'YS' | 'YE' | 'Y' | 'A':
                 qtde_pred = 10
             case _:
@@ -93,5 +109,7 @@ class ProphetModel(tratamento_base):
         future = modelo.make_future_dataframe(periods=qtde_pred, freq=self.freq)
         self.pred = modelo.predict(future)
 
-        return self.pred[["ds", "yhat", "yhat_lower", "yhat_upper"]]
+        result = self.pred[["ds", "yhat", "yhat_lower", "yhat_upper"]].copy()
+        result[["yhat", "yhat_lower", "yhat_upper"]] = result[["yhat", "yhat_lower", "yhat_upper"]].round(2)
+        return result
         

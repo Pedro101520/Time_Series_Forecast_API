@@ -4,6 +4,7 @@ from models.prophet import ProphetModel
 from models.sarima import SarimaModel
 from models.holt_winters import Holt_Winters_Model
 from utils.leitura import ler_arquivo
+from utils.selecao import calculo_ponderado
 
 pipeline_bp = Blueprint("pipeline", __name__)
 
@@ -42,17 +43,13 @@ def upload_csv():
 
         holt_winters.avaliar(df_tratado[["Data", "Valor_sem_outliers"]])
 
-        rmse_compara = []
-        rmse_compara.append(prophet.retorna_comparacao())
-        rmse_compara.append(sarima.retorna_comparacao())
-        rmse_compara.append(holt_winters.retorna_comparacao())
-
-        melhor_rmse = prophet.retorna_comparacao()
-        for i in rmse_compara:
-            if i < melhor_rmse:
-                melhor_rmse = i
+        compara_metricas = []
+        compara_metricas.append(prophet.retorna_comparacao())
+        compara_metricas.append(sarima.retorna_comparacao())
+        compara_metricas.append(holt_winters.retorna_comparacao())
         
-        melhor_modelo = rmse_compara.index(min(rmse_compara))
+        resultado_indice = calculo_ponderado(compara_metricas, pesos=(0.6, 0.4))
+        melhor_modelo = resultado_indice.index(min(resultado_indice))
 
         modelo = ""
         metricas = None
@@ -77,7 +74,7 @@ def upload_csv():
 
     return jsonify({
         "message": "Modelo treinado com sucesso",
-        "Melhor Modelo": f"{modelo}",
-        "Metricas": f"{metricas}",
+        "Melhor Modelo": modelo,
+        "Metricas": metricas,
         "Forecast": forecast.to_dict(orient="records")
     }), 200

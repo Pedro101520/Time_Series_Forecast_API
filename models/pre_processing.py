@@ -11,6 +11,10 @@ class tratamento_base():
     
     def validar_serie(self):
         if len(self.df.columns) != 2:
+            print(self.df.columns)
+            print(len(self.df.columns))
+            print(self.df.info)
+            print(self.df.describe())
             raise ValueError("Só é aceito séries temporais com duas colunas - (Data e valor)")
         if self.df.empty:
             raise ValueError("Arquivo vazio")
@@ -72,7 +76,7 @@ class tratamento_base():
             if not(freq == None):
                 freq = freq.split('-')[0]
 
-            if freq in ["h","t","s","l","u","n"]:
+            if freq in ["h", "H", "t","s","l","u","n"]:
                 self.df = self.df.resample("D").mean()
                 freq = "D"
 
@@ -150,9 +154,9 @@ class tratamento_base():
             freq = "D"
 
         if freq is None:
-            diffs = df.index.to_series().diff().median()
+            diffs = self.df.index.to_series().diff().median()
             if diffs == pd.Timedelta(days=1):
-                tem_fim_de_semana = df.index.dayofweek.isin([5, 6]).any()
+                tem_fim_de_semana = self.df.index.dayofweek.isin([5, 6]).any()
                 
                 if tem_fim_de_semana:
                     freq = 'D'
@@ -163,8 +167,14 @@ class tratamento_base():
                 freq = 'MS'
             elif diffs == pd.Timedelta(days=7):
                 freq = 'W'
+            elif pd.Timedelta(days=360) <= diffs <= pd.Timedelta(days=366):
+                freq = 'YS'
+            elif diffs < pd.Timedelta(days=1):
+                freq = 'D'
+                self.df = self.df.resample('D').mean()
             else:
                 freq = 'D'
+                self.df = self.df.resample('D').mean()
 
         return(freq)
 

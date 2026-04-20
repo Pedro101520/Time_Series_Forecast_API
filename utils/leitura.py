@@ -2,19 +2,21 @@ import pandas as pd
 
 def ler_arquivo(arquivo):
     configs = [
-        {"sep": ",", "on_bad_lines": "skip"},
-        {"sep": ";", "on_bad_lines": "skip"},
-        {"sep": ";", "decimal": ",", "on_bad_lines": "skip"},
-        {"sep": ",", "encoding": "latin1", "on_bad_lines": "skip"},
-        {"sep": ";", "encoding": "latin1", "on_bad_lines": "skip"},
-        {"sep": ";", "decimal": ",", "encoding": "latin1", "on_bad_lines": "skip"},
-        {"sep": None, "engine": "python", "on_bad_lines": "skip"},
+        {"sep": ","},
+        {"sep": ";"},
+        {"sep": ";", "decimal": ","},
+        {"sep": ",", "encoding": "latin1"},
+        {"sep": ";", "encoding": "latin1"},
+        {"sep": None, "engine": "python"},
     ]
 
     for config in configs:
         try:
-            return pd.read_csv(arquivo, **config)
-        except Exception:
+            arquivo.seek(0)
+            df = pd.read_csv(arquivo, on_bad_lines="skip", **config)
+            if len(df.columns) >= 2:
+                return df
+        except Exception as e:
             continue
 
     raise ValueError("Não foi possível ler o CSV com os formatos suportados")

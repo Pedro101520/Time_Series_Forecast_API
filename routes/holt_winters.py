@@ -39,7 +39,7 @@ def rota_holt_winters():
 
     return jsonify({
         "message": "Modelo treinado com sucesso",
-        "Modelo": f"{modelo}",
-        "Metricas": f"{metricas}",
+        "Modelo": modelo,
+        "Metricas": metricas,
         "Forecast": forecast.to_dict(orient="records")
     }), 200
