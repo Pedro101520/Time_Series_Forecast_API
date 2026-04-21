@@ -1,5 +1,8 @@
 # Forecast API
 
+Link de demonstração:
+<https://forecast-time-series.streamlit.app/>
+
 Esta API tem como objetivo fornecer uma forma simples e automatizada de aplicar modelos estatísticos para previsão de séries temporais univariadas.
 
 Atualmente, estão disponíveis três modelos de previsão:
