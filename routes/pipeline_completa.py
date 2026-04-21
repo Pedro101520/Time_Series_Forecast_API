@@ -52,6 +52,7 @@ def upload_csv():
         melhor_modelo = resultado_indice.index(min(resultado_indice))
 
         modelo = ""
+
         metricas = None
         forecast = None
         match melhor_modelo:

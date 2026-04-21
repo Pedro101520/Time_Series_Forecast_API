@@ -1,7 +1,7 @@
 from .pre_processing import tratamento_base
 import pandas as pd
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.metrics import mean_absolute_error, mean_squared_error, mean_absolute_percentage_error
 from sklearn.model_selection import train_test_split
 import numpy as np
 
@@ -92,7 +92,7 @@ class Holt_Winters_Model(tratamento_base):
                 forecast = model.forecast(len(self.teste))
                 rmse = np.sqrt(mean_squared_error(self.teste['Valor_sem_outliers'], forecast))
                 mae = mean_absolute_error(self.teste['Valor_sem_outliers'], forecast)
-                mape = np.mean(np.abs((self.teste['Valor_sem_outliers'] - forecast) / self.teste['Valor_sem_outliers'])) * 100
+                mape = mean_absolute_percentage_error(self.teste['Valor_sem_outliers'], forecast)
 
                 self.results.append({
                 'trend': cfg['trend'],

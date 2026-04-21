@@ -2,7 +2,7 @@ from .pre_processing import tratamento_base
 from prophet import Prophet
 import pandas as pd
 import numpy as np
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.metrics import mean_absolute_error, mean_squared_error, mean_absolute_percentage_error
 
 class ProphetModel(tratamento_base):
     def __init__(self):
@@ -55,7 +55,7 @@ class ProphetModel(tratamento_base):
                 y_pred = forecast.tail(n_test)["yhat"]
                 mae = mean_absolute_error(self.teste["y"], y_pred)
                 rmse = np.sqrt(mean_squared_error(self.teste["y"], y_pred))
-                mape = np.mean(np.abs((self.teste["y"] - y_pred) / self.teste["y"])) * 100
+                mape = mean_absolute_percentage_error(self.teste["y"], y_pred)
 
                 if rmse < melhor_rmse:
                     melhor_rmse = rmse
