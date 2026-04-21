@@ -1,4 +1,4 @@
-# 📊 Forecast API
+# Forecast API
 
 Esta API tem como objetivo fornecer uma forma simples e automatizada de aplicar modelos estatísticos para previsão de séries temporais univariadas.
 
@@ -18,7 +18,7 @@ A métrica com maior peso na seleção do modelo é o RMSE (Root Mean Squared Er
 
 ---
 
-🌐 Disponibilidade da API
+Disponibilidade da API
 
 A API está hospedada no Google Cloud Platform (GCP), utilizando o serviço Cloud Run para execução e escalabilidade.
 
@@ -29,7 +29,7 @@ As informações de contato estão disponíveis no meu perfil do GitHub.
 
 ---
 
-# 🛠️ Tecnologias utilizadas
+# Tecnologias utilizadas
 
 - Python
 - Flask
@@ -43,11 +43,11 @@ As informações de contato estão disponíveis no meu perfil do GitHub.
 
 ---
 
-# 📄 Endpoints
+# Endpoints
 
 A API possui 5 endpoints:
 
-### 1️⃣ `/pipeline/predicao`
+### 1️ `/pipeline/predicao`
 Endpoint principal da API.
 
 Responsável por:
@@ -78,7 +78,7 @@ Exemplo de saída:
 
 ---
 
-### 2️⃣ `/tratamento`
+### 2️`/tratamento`
 
 Realiza apenas o tratamento da série temporal, sem aplicar modelos de previsão.
 
@@ -114,19 +114,19 @@ Exemplo de saída:
 
 ---
 
-### 3️⃣ `/sarima`
+### 3️`/sarima`
 
 Realiza o forecast utilizando apenas o modelo SARIMA.
 
 ---
 
-### 4️⃣ `/prophet`
+### 4️`/prophet`
 
 Realiza o forecast utilizando apenas o modelo Prophet.
 
 ---
 
-### 5️⃣ `/holt_winters`
+### 5️`/holt_winters`
 
 Realiza o forecast utilizando apenas o modelo Holt-Winters.
 
@@ -151,7 +151,7 @@ Realiza o forecast utilizando apenas o modelo Holt-Winters.
 ```
 ---
 
-# ⚙️ Limitações da API
+# Limitações da API
 
 Para garantir desempenho e controle de recursos, algumas restrições foram implementadas:
 
@@ -161,7 +161,7 @@ Para garantir desempenho e controle de recursos, algumas restrições foram impl
 
 ---
 
-# 📂 Formato de entrada
+# Formato de entrada
 
 A API aceita apenas arquivos `.csv`.
 
